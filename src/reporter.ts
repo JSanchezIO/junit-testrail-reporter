@@ -207,22 +207,27 @@ export class Reporter {
       return;
     }
 
-    const testRailRun = await api.addRun(this._configuration.projectId, {
-      case_ids: [...testSuiteResults.distinctCaseIds],
-      include_all: false,
-      name: this._configuration.runName,
-      suite_id: testSuiteId,
-    });
-
-    await api.addResultsForCases(testRailRun.id, {
-      results: testSuiteResults.testCaseResults,
-    });
-
-    await api.closeRun(testRailRun.id);
-
-    logger.info(
-      `Successfully created and closed TestRail run R${testRailRun.id} for S${testSuiteId}!`
-    );
+    try {
+      const testRailRun = await api.addRun(this._configuration.projectId, {
+        case_ids: [...testSuiteResults.distinctCaseIds],
+        include_all: false,
+        name: this._configuration.runName,
+        suite_id: testSuiteId,
+      });
+  
+      await api.addResultsForCases(testRailRun.id, {
+        results: testSuiteResults.testCaseResults,
+      });
+  
+      await api.closeRun(testRailRun.id);
+      
+      logger.info(
+        `Successfully created and closed TestRail run R${testRailRun.id} for S${testSuiteId}!`
+      );
+    } catch (error) {
+      logger.error(error);
+      return;      
+    }
   };
 
   public reportResults = async () => {
